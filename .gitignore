@@ -11,3 +11,4 @@ ml_env/
 
 # Jupyter checkpoints
 .ipynb_checkpoints/
+project_summary.md
