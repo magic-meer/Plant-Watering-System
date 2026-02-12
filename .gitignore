@@ -1,8 +1,4 @@
-# Ignore raw datasets
-data/raw/
 
-# Ignore CSV files (optional)
-*.csv
 
 # Python cache
 __pycache__/
