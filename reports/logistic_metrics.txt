@@ -1,0 +1,22 @@
+
+✅ Plant-Watering System – Logistic Regression Model Metrics
+
+Overall Accuracy: 0.7125
+(This indicates that the model correctly predicted approximately 71.25% of the samples.)
+
+Classification Report:
+This table shows precision, recall, and F1-score for each class.
+
+              precision    recall  f1-score   support
+
+           0       0.75      0.73      0.74        60
+           1       0.80      0.78      0.79       100
+           2       0.59      0.61      0.60        80
+
+    accuracy                           0.71       240
+   macro avg       0.71      0.71      0.71       240
+weighted avg       0.71      0.71      0.71       240
+
+
+Confusion Matrix:
+Rows represent actual labels, columns represent predicted labels.
