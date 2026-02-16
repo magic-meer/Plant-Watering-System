@@ -42,7 +42,7 @@ def show_dashboard():
     """, unsafe_allow_html=True)
 
     # ===== Header =====
-    st.header("📊 Dashboard")
+    st.header(" Dashboard")
     st.write("Welcome to Plant Health System")
     st.write("Your plant monitoring system is active")
 
@@ -73,25 +73,25 @@ def show_dashboard():
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        if st.button("🔍 Scan"):
+        if st.button(" Scan"):
             st.success("Scanning started")
 
     with col2:
-        if st.button("📊 Report"):
+        if st.button(" Report"):
             st.info("Generating report")
 
     with col3:
-        if st.button("⚙️ Update"):
+        if st.button(" Update"):
             st.warning("Checking updates")
 
     with col4:
-        if st.button("📧 Alert"):
+        if st.button(" Alert"):
             st.success("Alert sent")
 
     st.markdown("---")
 
     # ===== System Status =====
-    st.subheader("🖥️ System Status")
+    st.subheader(" System Status")
 
     col1, col2 = st.columns(2)
 
@@ -110,7 +110,7 @@ def show_dashboard():
     st.markdown("---")
 
     # ===== Recent Activity =====
-    st.subheader("📌 Recent Activity")
+    st.subheader(" Recent Activity")
 
     st.markdown("""
     <div class="status-box">

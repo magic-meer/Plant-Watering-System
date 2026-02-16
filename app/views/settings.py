@@ -36,7 +36,7 @@ def show_settings():
     """, unsafe_allow_html=True)
 
     # ===== Header =====
-    st.header("⚙️ Settings")
+    st.header(" Settings")
 
     tab1, tab2 = st.tabs(["General", "Notifications"])
 

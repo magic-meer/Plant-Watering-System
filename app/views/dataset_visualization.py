@@ -4,7 +4,7 @@ import plotly.express as px
 import numpy as np
 
 def show_visualization():
-    st.header("📈 Data Visualization")
+    st.header(" Data Visualization")
     
     # Sample data (as per your CSV files)
     data = pd.DataFrame({

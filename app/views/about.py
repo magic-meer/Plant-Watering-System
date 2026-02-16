@@ -26,7 +26,7 @@ def show_about():
     """, unsafe_allow_html=True)
 
     # ===== Header =====
-    st.header("ℹ️ About Plant Health AI")
+    st.header(" About Plant Health AI")
     st.write("Smart AI-based system for monitoring plant health and detecting diseases.")
 
     st.markdown("---")
@@ -53,8 +53,8 @@ def show_about():
         st.markdown('<div class="info-card">', unsafe_allow_html=True)
 
         st.markdown('<p class="section-title">Contact</p>', unsafe_allow_html=True)
-        st.write("📧 Email: info@planthealth.com")
-        st.write("🌐 Website: www.planthealth.com")
+        st.write(" Email: info@planthealth.com")
+        st.write(" Website: www.planthealth.com")
 
         st.markdown('<p class="section-title">Tech Stack</p>', unsafe_allow_html=True)
         st.write("• Streamlit")

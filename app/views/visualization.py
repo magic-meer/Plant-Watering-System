@@ -31,7 +31,7 @@ def show_visualization():
     """, unsafe_allow_html=True)
 
     # ===== Header =====
-    st.header("📈 Visualization")
+    st.header(" Visualization")
     st.write("Analyze plant health data with interactive charts")
 
     st.markdown("---")
@@ -83,7 +83,7 @@ def show_visualization():
     st.markdown("---")
 
     # ===== Scatter Plot =====
-    st.subheader("📊 Feature Relationship")
+    st.subheader(" Feature Relationship")
 
     col1, col2 = st.columns(2)
 
@@ -105,5 +105,5 @@ def show_visualization():
     st.markdown("---")
 
     # ===== Data Table =====
-    with st.expander("📂 View Raw Data"):
+    with st.expander(" View Raw Data"):
         st.dataframe(filtered, use_container_width=True)

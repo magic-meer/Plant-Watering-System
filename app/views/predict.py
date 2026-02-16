@@ -56,7 +56,7 @@ def show_predict():
             if st.button("Predict"):
                 with st.spinner("Analyzing..."):
                     time.sleep(2)
-                    st.success("✅ Prediction: Healthy Plant")
+                    st.success(" Prediction: Healthy Plant")
                     st.info("Confidence: 98%")
 
         st.markdown('</div>', unsafe_allow_html=True)
