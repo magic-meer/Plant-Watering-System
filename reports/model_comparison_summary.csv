@@ -1,0 +1,4 @@
+Model,Accuracy,Precision,Recall,F1-Score,AUC (Macro),Inference (ms)
+Logistic Regression,0.7125,0.7149,0.7125,0.7136,0.8816,5.2
+Random Forest,1.0000,1.0000,1.0000,1.0000,1.0000,225.1
+XGBoost,0.9958,0.9959,0.9958,0.9958,0.9999,10.8
