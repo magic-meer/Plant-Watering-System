@@ -1,59 +1,107 @@
+"""
+app/views/dataset_visualization.py  ─  Dataset Visualization Page
+Reads: data/processed/cleaned_data.csv + X_train/X_test
+"""
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import numpy as np
+import plotly.graph_objects as go
+import sys, os
 
-def show_visualization():
-    st.header("📈 Data Visualization")
-    
-    # Sample data (as per your CSV files)
-    data = pd.DataFrame({
-        'Plant_Health_Status': np.random.choice(['Healthy', 'Diseased', 'At Risk'], 100),
-        'Temperature': np.random.normal(25, 5, 100),
-        'Humidity': np.random.normal(60, 10, 100),
-        'Soil_Moisture': np.random.normal(40, 8, 100)
-    })
-    
-    # Filter
-    status = st.multiselect(
-        "Filter by Health Status",
-        data['Plant_Health_Status'].unique(),
-        default=data['Plant_Health_Status'].unique()
-    )
-    
-    filtered = data[data['Plant_Health_Status'].isin(status)]
-    st.write(f"Showing {len(filtered)} records")
-    
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, ROOT)
+
+from src.utils.config import CLEANED_CSV, X_TRAIN_CSV, Y_TRAIN_CSV, TARGET_COL, CLASS_NAMES
+
+
+@st.cache_data
+def load_data():
+    if os.path.exists(CLEANED_CSV):
+        return pd.read_csv(CLEANED_CSV)
+    if os.path.exists(X_TRAIN_CSV) and os.path.exists(Y_TRAIN_CSV):
+        X = pd.read_csv(X_TRAIN_CSV)
+        y = pd.read_csv(Y_TRAIN_CSV)
+        return pd.concat([X, y], axis=1)
+    return None
+
+
+def show_dataset_visualization():
+    st.header("📈 Dataset Visualization")
+
+    df = load_data()
+
+    if df is None:
+        st.warning("Dataset not found. Please ensure `data/processed/cleaned_data.csv` exists.")
+        return
+
+    st.success(f"✅ Dataset loaded: **{len(df):,} rows × {len(df.columns)} columns**")
+
+    # ── Basic info ───────────────────────────────────────────────────────
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Rows",    f"{len(df):,}")
+    col2.metric("Features",      f"{len(df.columns)-1}")
+    col3.metric("Missing Values",f"{df.isnull().sum().sum()}")
+
     st.markdown("---")
-    
-    # Charts
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.subheader("Health Distribution")
-        fig1 = px.pie(filtered, names='Plant_Health_Status')
-        st.plotly_chart(fig1, use_container_width=True)
-    
-    with col2:
-        st.subheader("Temperature Distribution")
-        fig2 = px.histogram(filtered, x='Temperature', color='Plant_Health_Status')
-        st.plotly_chart(fig2, use_container_width=True)
-    
-    st.markdown("---")
-    
-    # Scatter plot
-    st.subheader("Feature Relationship")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        x_axis = st.selectbox("X-axis", ['Temperature', 'Humidity', 'Soil_Moisture'])
-    
-    with col2:
-        y_axis = st.selectbox("Y-axis", ['Temperature', 'Humidity', 'Soil_Moisture'])
-    
-    fig3 = px.scatter(filtered, x=x_axis, y=y_axis, color='Plant_Health_Status')
-    st.plotly_chart(fig3, use_container_width=True)
-    
-    # Data table
-    with st.expander("View Raw Data"):
-        st.dataframe(filtered)
+
+    tab1, tab2, tab3 = st.tabs(["📊 Distribution", "🔗 Correlation", "🔍 Raw Data"])
+
+    with tab1:
+        # Target distribution
+        target_col = TARGET_COL if TARGET_COL in df.columns else df.columns[-1]
+        if target_col in df.columns:
+            st.subheader("Target Class Distribution")
+            vc = df[target_col].value_counts().reset_index()
+            vc.columns = ["Class", "Count"]
+            vc["Label"] = vc["Class"].map(CLASS_NAMES)
+            fig_pie = px.pie(
+                vc, names="Label", values="Count",
+                color_discrete_sequence=["#2ecc71", "#e67e22", "#e74c3c"],
+                title="Class Distribution",
+            )
+            st.plotly_chart(fig_pie, use_container_width=True)
+
+        # Feature distributions
+        st.subheader("Feature Distributions")
+        numeric_cols = df.select_dtypes(include="number").columns.tolist()
+        if target_col in numeric_cols:
+            numeric_cols.remove(target_col)
+
+        selected_feat = st.selectbox("Select Feature", numeric_cols[:15])
+        if target_col in df.columns:
+            fig_hist = px.histogram(
+                df, x=selected_feat, color=target_col,
+                color_discrete_map={0: "#2ecc71", 1: "#e67e22", 2: "#e74c3c"},
+                nbins=40, barmode="overlay",
+                title=f"Distribution of {selected_feat} by Class",
+            )
+        else:
+            fig_hist = px.histogram(df, x=selected_feat, nbins=40)
+        fig_hist.update_layout(plot_bgcolor="white", paper_bgcolor="white")
+        st.plotly_chart(fig_hist, use_container_width=True)
+
+    with tab2:
+        st.subheader("Feature Correlation Heatmap")
+        numeric_df = df.select_dtypes(include="number")
+        corr = numeric_df.corr()
+
+        fig_corr = px.imshow(
+            corr.round(2),
+            color_continuous_scale="RdYlGn",
+            zmin=-1, zmax=1,
+            text_auto=True,
+            title="Correlation Matrix",
+        )
+        fig_corr.update_layout(height=600, font=dict(size=10))
+        st.plotly_chart(fig_corr, use_container_width=True)
+
+    with tab3:
+        st.subheader("Raw Data Preview")
+        st.dataframe(df.head(100), use_container_width=True)
+        st.download_button(
+            "⬇️ Download CSV",
+            data=df.to_csv(index=False),
+            file_name="plant_data.csv",
+            mime="text/csv",
+        )

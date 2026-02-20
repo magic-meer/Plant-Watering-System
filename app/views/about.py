@@ -1,65 +1,63 @@
+"""app/views/about.py"""
 import streamlit as st
 
+
 def show_about():
+    st.header("ℹ️ About")
 
-    # ===== Styling =====
     st.markdown("""
-    <style>
+    ## 🌱 Plant Watering Intelligence System
 
-    body, .stApp, p, h1, h2, h3, h4, span {
-        color: black !important;
-    }
+    An AI-powered plant health monitoring and watering decision system.
 
-    .info-card {
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
+    ---
 
-    .section-title {
-        color: #2ecc71;
-        font-weight: bold;
-    }
+    ### 🏗️ Architecture
+    """)
 
-    </style>
-    """, unsafe_allow_html=True)
-
-    # ===== Header =====
-    st.header("ℹ️ About Plant Health AI")
-    st.write("Smart AI-based system for monitoring plant health and detecting diseases.")
-
-    st.markdown("---")
-
-    # ===== Layout =====
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown('<div class="info-card">', unsafe_allow_html=True)
-
-        st.markdown('<p class="section-title">Plant Health AI</p>', unsafe_allow_html=True)
-        st.write("Version: 2.0")
-        st.write("Released: 2026")
-
-        st.markdown('<p class="section-title">Features</p>', unsafe_allow_html=True)
-        st.write("• Dashboard monitoring")
-        st.write("• Disease prediction")
-        st.write("• Data visualization")
-        st.write("• Custom settings")
-
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("""
+        **Frontend (Streamlit)**
+        - `app/app.py` — Main entry point
+        - `app/views/dashboard.py` — Overview
+        - `app/views/predict.py` — ML + Rule predictions
+        - `app/views/model_comparison.py` — Compare models
+        - `app/views/dataset_visualization.py` — Data EDA
+        - `app/views/settings.py` — Configuration
+        """)
 
     with col2:
-        st.markdown('<div class="info-card">', unsafe_allow_html=True)
+        st.markdown("""
+        **Backend (Python)**
+        - `src/backend/predict.py` — Model loader + inference
+        - `src/inference/decision_logic.py` — Rule engine
+        - `src/utils/config.py` — Central config
+        - `src/models/` — Training scripts
+        - `models/` — Saved .pkl files
+        """)
 
-        st.markdown('<p class="section-title">Contact</p>', unsafe_allow_html=True)
-        st.write("📧 Email: info@planthealth.com")
-        st.write("🌐 Website: www.planthealth.com")
+    st.markdown("---")
 
-        st.markdown('<p class="section-title">Tech Stack</p>', unsafe_allow_html=True)
-        st.write("• Streamlit")
-        st.write("• Python")
-        st.write("• Plotly")
-        st.write("• Pandas")
+    st.markdown("""
+    ### 🤖 Models
+    | Model | Accuracy | Best For |
+    |-------|----------|----------|
+    | Logistic Regression | 71.25% | Baseline / Interpretability |
+    | Random Forest | 100.00% | High accuracy |
+    | XGBoost | 99.58% | **Recommended** for production |
 
-        st.markdown('</div>', unsafe_allow_html=True)
+    ### 🏷️ Classes
+    - ✅ **Healthy (0)** — Soil moisture 30–70%, normal conditions
+    - 💧 **Needs Water (1)** — Low moisture, high temp, low humidity
+    - ⚠️ **Overwatered (2)** — Too much moisture, excess nitrogen
+
+    ### 🛠️ Tech Stack
+    - Python 3.10+, scikit-learn, XGBoost
+    - Streamlit, Plotly, Pandas
+    - Pickle model serialization
+
+    ---
+    *Plant Watering Intelligence System © 2026*
+    """)

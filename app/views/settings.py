@@ -1,71 +1,58 @@
+"""
+app/views/settings.py
+app/views/about.py
+"""
+
 import streamlit as st
+import sys, os
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, ROOT)
+
+from src.utils.config import RULE_THRESHOLDS, RF_MODEL, XGB_V1, LR_MODEL
+
 
 def show_settings():
-
-    # ===== Styling =====
-    st.markdown("""
-    <style>
-
-    body, .stApp, p, h1, h2, h3, h4, span, label {
-        color: black !important;
-    }
-
-    .card {
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #e6e6e6;
-        margin-bottom: 20px;
-    }
-
-    .section {
-        color: #2ecc71;
-        font-weight: bold;
-        margin-top: 10px;
-    }
-
-    .stButton button {
-        background-color: #2ecc71;
-        color: white;
-        border-radius: 8px;
-        width: 200px;
-        font-weight: bold;
-    }
-
-    </style>
-    """, unsafe_allow_html=True)
-
-    # ===== Header =====
     st.header("⚙️ Settings")
 
-    tab1, tab2 = st.tabs(["General", "Notifications"])
+    st.subheader("🔧 Rule Engine Thresholds")
+    st.markdown("These thresholds are used by the **Rule-Based Decision Engine** in `src/inference/decision_logic.py`.")
 
-    # ===== Tab 1 =====
-    with tab1:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(f"""
+        | Threshold | Value |
+        |-----------|-------|
+        | Soil Moisture LOW  | `{RULE_THRESHOLDS['soil_moisture_low']}%` |
+        | Soil Moisture HIGH | `{RULE_THRESHOLDS['soil_moisture_high']}%` |
+        | Temperature HIGH   | `{RULE_THRESHOLDS['temperature_high']}°C` |
+        | Humidity LOW       | `{RULE_THRESHOLDS['humidity_low']}%` |
+        | Days Since Water   | `{RULE_THRESHOLDS['days_since_water']} days` |
+        """)
 
-        st.markdown('<p class="section">Appearance</p>', unsafe_allow_html=True)
-        theme = st.selectbox("Theme", ["Light", "Dark"])
-        language = st.selectbox("Language", ["English", "Spanish"])
+    with col2:
+        st.markdown("**To change thresholds**, edit `src/utils/config.py`:")
+        st.code("""
+RULE_THRESHOLDS = {
+    "soil_moisture_low":  30,
+    "soil_moisture_high": 70,
+    "temperature_high":   38,
+    "humidity_low":       35,
+    "days_since_water":    3,
+}
+        """, language="python")
 
-        st.markdown('<p class="section">Data</p>', unsafe_allow_html=True)
-        auto = st.checkbox("Auto-save data", value=True)
-        backup = st.checkbox("Auto backup", value=True)
-        days = st.number_input("Data retention (days)", 30, 365, 90)
+    st.markdown("---")
+    st.subheader("📁 Model File Status")
 
-        st.markdown('</div>', unsafe_allow_html=True)
+    for label, path in [
+        ("Random Forest",       RF_MODEL),
+        ("XGBoost",             XGB_V1),
+        ("Logistic Regression", LR_MODEL),
+    ]:
+        exists = os.path.exists(path)
+        icon   = "✅" if exists else "❌"
+        st.markdown(f"{icon} **{label}** — `{os.path.basename(path)}`")
 
-    # ===== Tab 2 =====
-    with tab2:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-
-        st.markdown('<p class="section">Alerts</p>', unsafe_allow_html=True)
-        email = st.checkbox("Email alerts", value=True)
-        push = st.checkbox("Push alerts", value=False)
-        threshold = st.slider("Alert threshold (%)", 0, 100, 70)
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # ===== Save Button =====
-    if st.button("Save Settings"):
-        st.success("Settings saved!")
+    st.markdown("---")
+    st.info("💡 To retrain models, run the scripts in `src/models/` folder.")

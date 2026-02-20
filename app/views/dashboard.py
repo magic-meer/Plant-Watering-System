@@ -1,121 +1,112 @@
+"""
+app/views/dashboard.py  ─  Dashboard Page
+Shows system overview, model stats, quick metrics
+"""
+
 import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import sys, os
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, ROOT)
+
+from src.backend.predict import load_comparison_metrics
+from src.utils.config import CLASS_COLORS, CLASS_ICONS, CLASS_NAMES
+
 
 def show_dashboard():
+    st.header("🏠 Dashboard")
 
-    # ===== Clean UI Styling =====
-    st.markdown("""
-    <style>
+    metrics = load_comparison_metrics()
+    has_metrics = bool(metrics)
 
-    /* Make ALL text black */
-    body, .stApp, p, h1, h2, h3, h4, h5, h6, span, label {
-        color: black !important;
-    }
-
-    /* Metric Card */
-    .metric-card {
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #e6e6e6;
-        text-align: center;
-    }
-
-    /* Action Buttons */
-    .stButton button {
-        background-color: #2ecc71;
-        color: white;
-        border-radius: 8px;
-        width: 100%;
-        font-weight: bold;
-    }
-
-    /* Status Boxes */
-    .status-box {
-        background: #f4fff6;
-        padding: 15px;
-        border-radius: 10px;
-        border-left: 4px solid #2ecc71;
-        color: black;
-    }
-
-    </style>
-    """, unsafe_allow_html=True)
-
-    # ===== Header =====
-    st.header("📊 Dashboard")
-    st.write("Welcome to Plant Health System")
-    st.write("Your plant monitoring system is active")
-
-    st.markdown("---")
-
-    # ===== Metrics =====
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.metric("Plants Monitored", "120")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with col2:
-        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.metric("Diseases Detected", "15")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with col3:
-        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.metric("Healthy Plants", "105")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown("---")
-
-    # ===== Quick Actions =====
-    st.subheader("⚡ Quick Actions")
+    # ── Top KPI row ──────────────────────────────────────────────────────
     col1, col2, col3, col4 = st.columns(4)
 
+    best_acc  = max((v["accuracy"] for v in metrics.values()), default=0.9958)
+    best_auc  = max((v["roc_auc_macro"] for v in metrics.values()), default=0.9999)
+    n_models  = len(metrics) if metrics else 3
+    n_classes = 3
+
     with col1:
-        if st.button("🔍 Scan"):
-            st.success("Scanning started")
-
+        st.metric("🤖 Models Loaded", n_models, delta="Ready")
     with col2:
-        if st.button("📊 Report"):
-            st.info("Generating report")
-
+        st.metric("🎯 Best Accuracy", f"{best_acc:.2%}")
     with col3:
-        if st.button("⚙️ Update"):
-            st.warning("Checking updates")
-
+        st.metric("📈 Best AUC", f"{best_auc:.4f}")
     with col4:
-        if st.button("📧 Alert"):
-            st.success("Alert sent")
+        st.metric("🏷️ Classes", n_classes, delta="Healthy / Needs Water / Overwatered")
 
     st.markdown("---")
 
-    # ===== System Status =====
-    st.subheader("🖥️ System Status")
+    # ── Model leaderboard ────────────────────────────────────────────────
+    st.subheader("🏆 Model Leaderboard")
 
-    col1, col2 = st.columns(2)
+    if has_metrics:
+        rows = sorted([
+            {
+                "Rank":           "",
+                "Model":          name,
+                "Accuracy":       f"{m['accuracy']:.2%}",
+                "F1-Score":       f"{m['f1_score']:.4f}",
+                "AUC (Macro)":    f"{m['roc_auc_macro']:.4f}",
+                "Speed (ms)":     f"{m['inference_time_s']*1000:.1f}",
+                "_acc":           m["accuracy"],
+            }
+            for name, m in metrics.items()
+        ], key=lambda r: r["_acc"], reverse=True)
 
-    with col1:
-        st.markdown('<div class="status-box">', unsafe_allow_html=True)
-        st.write("• Sensors: 12/12 Active")
-        st.write("• Last Update: 2 min ago")
-        st.markdown('</div>', unsafe_allow_html=True)
+        medals = ["🥇", "🥈", "🥉"]
+        for i, r in enumerate(rows):
+            r["Rank"] = medals[i] if i < 3 else str(i+1)
 
-    with col2:
-        st.markdown('<div class="status-box">', unsafe_allow_html=True)
-        st.write("• Storage: 45% Used")
-        st.write("• System Health: Good")
-        st.markdown('</div>', unsafe_allow_html=True)
+        df_lb = pd.DataFrame(rows).drop(columns=["_acc"])
+        st.dataframe(df_lb.set_index("Rank"), use_container_width=True)
+    else:
+        st.info("Run `src/models/compare_models.py` to populate leaderboard.")
 
     st.markdown("---")
 
-    # ===== Recent Activity =====
-    st.subheader("📌 Recent Activity")
+    # ── Accuracy mini-chart ──────────────────────────────────────────────
+    if has_metrics:
+        st.subheader("📊 Accuracy at a Glance")
+        colors = {"Logistic Regression": "#e74c3c", "Random Forest": "#2ecc71", "XGBoost": "#3498db"}
 
-    st.markdown("""
-    <div class="status-box">
-    • New plant added - Tomato <br>
-    • Disease detected - Potato <br>
-    • System updated successfully
-    </div>
-    """, unsafe_allow_html=True)
+        fig = go.Figure()
+        for name, m in metrics.items():
+            fig.add_trace(go.Bar(
+                name=name, x=[name], y=[m["accuracy"]],
+                marker_color=colors.get(name, "#888"),
+                text=[f"{m['accuracy']:.2%}"], textposition="outside",
+            ))
+        fig.update_layout(
+            yaxis=dict(range=[0, 1.15], title="Accuracy"),
+            plot_bgcolor="white", paper_bgcolor="white",
+            showlegend=False, height=300,
+            margin=dict(t=20, b=20),
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown("---")
+
+    # ── Class info ───────────────────────────────────────────────────────
+    st.subheader("🌿 Plant Health Classes")
+    c1, c2, c3 = st.columns(3)
+
+    class_info = {
+        0: ("Healthy",      "Soil moisture 30–70%\nNormal temp & humidity\nNo action needed",   "#2ecc71"),
+        1: ("Needs Water",  "Soil moisture < 30%\nHigh temp or low humidity\nTurn pump ON",     "#e67e22"),
+        2: ("Overwatered",  "Soil moisture > 70%\nExcess nitrogen\nStop watering immediately", "#e74c3c"),
+    }
+
+    for col, (cls_id, (label, desc, color)) in zip([c1, c2, c3], class_info.items()):
+        with col:
+            st.markdown(f"""
+            <div style="background:{color}18; border:2px solid {color};
+                        border-radius:12px; padding:1rem; text-align:center; min-height:160px;">
+                <div style="font-size:2.5rem;">{CLASS_ICONS[cls_id]}</div>
+                <h4 style="color:{color}; margin:0.3rem 0;">{label}</h4>
+                <p style="font-size:0.85rem; color:#555; white-space:pre-line;">{desc}</p>
+            </div>
+            """, unsafe_allow_html=True)
