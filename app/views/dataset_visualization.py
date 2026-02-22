@@ -1,13 +1,11 @@
-"""
-app/views/dataset_visualization.py  ─  Dataset Visualization Page
-Reads: data/processed/cleaned_data.csv + X_train/X_test
-"""
+"""Dataset Visualization page view for exploring the plant health dataset."""
 
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import sys, os
+import sys
+import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT)
@@ -17,6 +15,7 @@ from src.utils.config import CLEANED_CSV, X_TRAIN_CSV, Y_TRAIN_CSV, TARGET_COL, 
 
 @st.cache_data
 def load_data():
+    """Load the dataset from cleaned CSV or train/test splits."""
     if os.path.exists(CLEANED_CSV):
         return pd.read_csv(CLEANED_CSV)
     if os.path.exists(X_TRAIN_CSV) and os.path.exists(Y_TRAIN_CSV):
@@ -27,7 +26,8 @@ def load_data():
 
 
 def show_dataset_visualization():
-    st.header("📈 Dataset Visualization")
+    """Display the dataset visualization page with distributions and correlations."""
+    st.header("Dataset Visualization")
 
     df = load_data()
 
@@ -35,17 +35,17 @@ def show_dataset_visualization():
         st.warning("Dataset not found. Please ensure `data/processed/cleaned_data.csv` exists.")
         return
 
-    st.success(f"✅ Dataset loaded: **{len(df):,} rows × {len(df.columns)} columns**")
+    st.success(f"Dataset loaded: **{len(df):,} rows x {len(df.columns)} columns**")
 
-    # ── Basic info ───────────────────────────────────────────────────────
+    # Basic info
     col1, col2, col3 = st.columns(3)
-    col1.metric("Total Rows",    f"{len(df):,}")
-    col2.metric("Features",      f"{len(df.columns)-1}")
-    col3.metric("Missing Values",f"{df.isnull().sum().sum()}")
+    col1.metric("Total Rows", f"{len(df):,}")
+    col2.metric("Features", f"{len(df.columns)-1}")
+    col3.metric("Missing Values", f"{df.isnull().sum().sum()}")
 
     st.markdown("---")
 
-    tab1, tab2, tab3 = st.tabs(["📊 Distribution", "🔗 Correlation", "🔍 Raw Data"])
+    tab1, tab2, tab3 = st.tabs(["Distribution", "Correlation", "Raw Data"])
 
     with tab1:
         # Target distribution
@@ -100,7 +100,7 @@ def show_dataset_visualization():
         st.subheader("Raw Data Preview")
         st.dataframe(df.head(100), use_container_width=True)
         st.download_button(
-            "⬇️ Download CSV",
+            "Download CSV",
             data=df.to_csv(index=False),
             file_name="plant_data.csv",
             mime="text/csv",

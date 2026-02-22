@@ -1,10 +1,8 @@
-"""
-app/views/settings.py
-app/views/about.py
-"""
+"""Settings page view for configuring rule engine thresholds and viewing model status."""
 
 import streamlit as st
-import sys, os
+import sys
+import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT)
@@ -13,9 +11,10 @@ from src.utils.config import RULE_THRESHOLDS, RF_MODEL, XGB_V1, LR_MODEL
 
 
 def show_settings():
-    st.header("⚙️ Settings")
+    """Display the settings page with rule engine thresholds and model file status."""
+    st.header("Settings")
 
-    st.subheader("🔧 Rule Engine Thresholds")
+    st.subheader("Rule Engine Thresholds")
     st.markdown("These thresholds are used by the **Rule-Based Decision Engine** in `src/inference/decision_logic.py`.")
 
     col1, col2 = st.columns(2)
@@ -43,16 +42,16 @@ RULE_THRESHOLDS = {
         """, language="python")
 
     st.markdown("---")
-    st.subheader("📁 Model File Status")
+    st.subheader("Model File Status")
 
     for label, path in [
-        ("Random Forest",       RF_MODEL),
-        ("XGBoost",             XGB_V1),
+        ("Random Forest", RF_MODEL),
+        ("XGBoost", XGB_V1),
         ("Logistic Regression", LR_MODEL),
     ]:
         exists = os.path.exists(path)
-        icon   = "✅" if exists else "❌"
+        icon = "✅" if exists else "❌"
         st.markdown(f"{icon} **{label}** — `{os.path.basename(path)}`")
 
     st.markdown("---")
-    st.info("💡 To retrain models, run the scripts in `src/models/` folder.")
+    st.info("To retrain models, run the scripts in `src/models/` folder.")

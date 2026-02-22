@@ -1,11 +1,12 @@
 """
-app/app.py  ─  Main Streamlit Entry Point
-Plant Watering System - Horizontal Top Navigation
+Main Streamlit Entry Point for Plant Watering System.
+
 Run with: streamlit run app/app.py
 """
 
 import streamlit as st
-import sys, os
+import sys
+import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
@@ -75,7 +76,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ── Header ──────────────────────────────────────────────────────────────────
+# Header
 st.markdown("""
 <div class="main-header">
     <div style="font-size:2.8rem;">🌿</div>
@@ -84,11 +85,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── Session State ────────────────────────────────────────────────────────────
+# Session State
 if "page" not in st.session_state:
     st.session_state.page = "Dashboard"
 
-# ── Horizontal Nav ───────────────────────────────────────────────────────────
+# Horizontal Navigation
 nav_items = [
     ("🏠", "Dashboard"),
     ("📊", "Visualization"),
@@ -103,7 +104,6 @@ cols = st.columns(len(nav_items))
 for i, (icon, label) in enumerate(nav_items):
     with cols[i]:
         is_active = st.session_state.page == label
-        # Highlight active button
         if is_active:
             st.markdown(f"""
             <style>
@@ -120,7 +120,7 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<hr style='margin:0.5rem 0 1.5rem 0; border-color:#ccc;'>", unsafe_allow_html=True)
 
-# ── Page Routing ─────────────────────────────────────────────────────────────
+# Page Routing
 page = st.session_state.page
 
 if page == "Dashboard":
@@ -147,9 +147,9 @@ elif page == "About":
     from views.about import show_about
     show_about()
 
-# ── Footer ───────────────────────────────────────────────────────────────────
+# Footer
 st.markdown("""
 <div class="custom-footer">
-    🌿 Plant Health Intelligence System © 2026 | Streamlit + scikit-learn + XGBoost
+    Plant Health Intelligence System © 2026 | Streamlit + scikit-learn + XGBoost
 </div>
 """, unsafe_allow_html=True)

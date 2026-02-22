@@ -1,15 +1,12 @@
-"""
-app/views/model_comparison.py  ─  Model Comparison Page
-Reads: reports/model_comparison_metrics.json (real pre-computed data)
-Shows: Accuracy, F1, AUC, Confusion Matrix, Inference Time, Radar Chart
-"""
+"""Model Comparison page view for comparing ML model performance metrics."""
 
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
-import sys, os
+import sys
+import os
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -19,8 +16,8 @@ from src.backend.predict import load_comparison_metrics
 from src.utils.config import FIGURES_DIR, REPORTS_DIR, CLASS_NAMES
 
 
-# ── Helper to load pre-saved plot images ──────────────────────────────────
 def _img(name):
+    """Load a pre-saved plot image from the figures directory."""
     path = os.path.join(FIGURES_DIR, name)
     if os.path.exists(path):
         return Image.open(path)
@@ -28,34 +25,35 @@ def _img(name):
 
 
 def show_model_comparison():
-    st.header("📊 Model Comparison")
+    """Display the model comparison page with metrics, charts, and analysis."""
+    st.header("Model Comparison")
     st.markdown("Comparing **Logistic Regression**, **Random Forest**, and **XGBoost** on plant health classification.")
 
-    # ── Load metrics ──────────────────────────────────────────────────────
+    # Load metrics
     metrics = load_comparison_metrics()
 
     if not metrics:
-        st.warning("⚠️ `reports/model_comparison_metrics.json` not found. Run `src/models/compare_models.py` first.")
+        st.warning("`reports/model_comparison_metrics.json` not found. Run `src/models/compare_models.py` first.")
         st.info("Showing demo data instead.")
         metrics = _demo_metrics()
 
     model_names = list(metrics.keys())
-    colors      = {"Logistic Regression": "#e74c3c", "Random Forest": "#2ecc71", "XGBoost": "#3498db"}
+    colors = {
+        "Logistic Regression": "#e74c3c",
+        "Random Forest": "#2ecc71",
+        "XGBoost": "#3498db"
+    }
 
-    # ════════════════════════════════════════════════════════════════════════
-    # TAB LAYOUT
-    # ════════════════════════════════════════════════════════════════════════
+    # Tab Layout
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📈 Metrics Overview",
-        "🎯 Confusion Matrices",
-        "📉 ROC & AUC",
-        "🕸️ Radar Chart",
-        "📄 Full Report",
+        "Metrics Overview",
+        "Confusion Matrices",
+        "ROC & AUC",
+        "Radar Chart",
+        "Full Report",
     ])
 
-    # ─────────────────────────────────────────────────────────────────────
     # TAB 1: Metrics Overview
-    # ─────────────────────────────────────────────────────────────────────
     with tab1:
         st.subheader("Summary Table")
 
@@ -63,18 +61,18 @@ def show_model_comparison():
         for name in model_names:
             m = metrics[name]
             rows.append({
-                "Model":          name,
-                "Accuracy":       f"{m['accuracy']:.4f}",
-                "Precision":      f"{m['precision']:.4f}",
-                "Recall":         f"{m['recall']:.4f}",
-                "F1-Score":       f"{m['f1_score']:.4f}",
-                "AUC (Macro)":    f"{m['roc_auc_macro']:.4f}",
+                "Model": name,
+                "Accuracy": f"{m['accuracy']:.4f}",
+                "Precision": f"{m['precision']:.4f}",
+                "Recall": f"{m['recall']:.4f}",
+                "F1-Score": f"{m['f1_score']:.4f}",
+                "AUC (Macro)": f"{m['roc_auc_macro']:.4f}",
                 "Inference (ms)": f"{m['inference_time_s']*1000:.1f}",
             })
         df_summary = pd.DataFrame(rows)
         st.dataframe(df_summary.set_index("Model"), use_container_width=True)
 
-        # ── Accuracy Bar Chart ───────────────────────────────────────────
+        # Accuracy Bar Chart
         st.subheader("Accuracy Comparison")
         fig_acc = go.Figure()
         for name in model_names:
@@ -93,7 +91,7 @@ def show_model_comparison():
         )
         st.plotly_chart(fig_acc, use_container_width=True)
 
-        # ── Multi-metric grouped bar ─────────────────────────────────────
+        # Multi-metric grouped bar
         st.subheader("Precision / Recall / F1 Comparison")
         metric_keys = ["precision", "recall", "f1_score"]
         metric_lbls = ["Precision", "Recall", "F1-Score"]
@@ -114,10 +112,10 @@ def show_model_comparison():
         )
         st.plotly_chart(fig_multi, use_container_width=True)
 
-        # ── Per-class F1 heatmap ─────────────────────────────────────────
+        # Per-class F1 heatmap
         st.subheader("Per-Class F1-Score Heatmap")
-        cls_labels  = [CLASS_NAMES[i] for i in range(3)]
-        z_values    = [[metrics[name]["f1_per_class"][i] for i in range(3)] for name in model_names]
+        cls_labels = [CLASS_NAMES[i] for i in range(3)]
+        z_values = [[metrics[name]["f1_per_class"][i] for i in range(3)] for name in model_names]
 
         fig_heat = go.Figure(go.Heatmap(
             z=z_values,
@@ -136,7 +134,7 @@ def show_model_comparison():
         )
         st.plotly_chart(fig_heat, use_container_width=True)
 
-        # ── Inference Time ────────────────────────────────────────────────
+        # Inference Time
         st.subheader("Inference Time (ms)")
         fig_inf = go.Figure()
         for name in model_names:
@@ -153,11 +151,8 @@ def show_model_comparison():
         )
         st.plotly_chart(fig_inf, use_container_width=True)
 
-    # ─────────────────────────────────────────────────────────────────────
     # TAB 2: Confusion Matrices
-    # ─────────────────────────────────────────────────────────────────────
     with tab2:
-        # Try saved image first
         img = _img("confusion_matrices.png")
         if img:
             st.image(img, caption="Confusion Matrices (pre-computed)", use_container_width=True)
@@ -180,9 +175,7 @@ def show_model_comparison():
                         fig_cm.update_layout(font=dict(size=12))
                         st.plotly_chart(fig_cm, use_container_width=True)
 
-    # ─────────────────────────────────────────────────────────────────────
     # TAB 3: ROC & AUC
-    # ─────────────────────────────────────────────────────────────────────
     with tab3:
         img_roc = _img("roc_curves.png")
         img_auc = _img("auc_comparison.png")
@@ -193,16 +186,16 @@ def show_model_comparison():
             st.image(img_auc, caption="AUC Comparison", use_container_width=True)
 
         # AUC table
-        st.subheader("AUC Score Table")
+        st.subheader("AUC Scores Table")
         auc_rows = []
         for name in model_names:
             per_cls = metrics[name].get("roc_auc_per_class", {})
             auc_rows.append({
-                "Model":           name,
-                "AUC (Healthy)":   f"{per_cls.get('0', per_cls.get(0, 0)):.4f}",
-                "AUC (Needs Water)":f"{per_cls.get('1', per_cls.get(1, 0)):.4f}",
-                "AUC (Overwatered)":f"{per_cls.get('2', per_cls.get(2, 0)):.4f}",
-                "AUC (Macro)":     f"{metrics[name]['roc_auc_macro']:.4f}",
+                "Model": name,
+                "AUC (Healthy)": f"{per_cls.get('0', per_cls.get(0, 0)):.4f}",
+                "AUC (Needs Water)": f"{per_cls.get('1', per_cls.get(1, 0)):.4f}",
+                "AUC (Overwatered)": f"{per_cls.get('2', per_cls.get(2, 0)):.4f}",
+                "AUC (Macro)": f"{metrics[name]['roc_auc_macro']:.4f}",
             })
         st.dataframe(pd.DataFrame(auc_rows).set_index("Model"), use_container_width=True)
 
@@ -224,9 +217,7 @@ def show_model_comparison():
         )
         st.plotly_chart(fig_auc, use_container_width=True)
 
-    # ─────────────────────────────────────────────────────────────────────
     # TAB 4: Radar Chart
-    # ─────────────────────────────────────────────────────────────────────
     with tab4:
         img_radar = _img("radar_chart.png")
         if img_radar:
@@ -234,7 +225,7 @@ def show_model_comparison():
 
         st.subheader("Interactive Radar Chart")
         radar_metrics = ["accuracy", "precision", "recall", "f1_score", "roc_auc_macro"]
-        radar_labels  = ["Accuracy", "Precision", "Recall", "F1-Score", "AUC"]
+        radar_labels = ["Accuracy", "Precision", "Recall", "F1-Score", "AUC"]
 
         fig_radar = go.Figure()
         for name in model_names:
@@ -259,22 +250,19 @@ def show_model_comparison():
         )
         st.plotly_chart(fig_radar, use_container_width=True)
 
-    # ─────────────────────────────────────────────────────────────────────
     # TAB 5: Full Report
-    # ─────────────────────────────────────────────────────────────────────
     with tab5:
         report_path = os.path.join(REPORTS_DIR, "model_comparison_report.md")
         if os.path.exists(report_path):
             with open(report_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
-            # Fix any template placeholders still in file
             if "{results" in content:
                 st.warning("Report contains unfilled template variables — showing raw report.")
             st.markdown(content)
 
             st.download_button(
-                "⬇️ Download Report (.md)",
+                "Download Report (.md)",
                 data=content,
                 file_name="model_comparison_report.md",
                 mime="text/markdown",
@@ -283,8 +271,8 @@ def show_model_comparison():
             st.warning("Report file not found. Run `src/models/compare_models.py` to generate it.")
 
 
-# ── Demo metrics fallback ──────────────────────────────────────────────────
 def _demo_metrics():
+    """Return demo metrics when actual metrics file is not available."""
     return {
         "Logistic Regression": {
             "accuracy": 0.7125, "precision": 0.7149, "recall": 0.7125,

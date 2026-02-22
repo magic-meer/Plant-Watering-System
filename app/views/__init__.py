@@ -1,1 +1,1 @@
-# app/views/__init__.py
+"""Views package for Plant Watering System Streamlit application."""

@@ -1,18 +1,20 @@
-"""app/views/about.py"""
+"""About page view for the Plant Watering System."""
+
 import streamlit as st
 
 
 def show_about():
-    st.header("ℹ️ About")
+    """Display the about page with system architecture and model information."""
+    st.header("About")
 
     st.markdown("""
-    ## 🌱 Plant Watering Intelligence System
+    ## Plant Watering Intelligence System
 
     An AI-powered plant health monitoring and watering decision system.
 
     ---
 
-    ### 🏗️ Architecture
+    ### Architecture
     """)
 
     col1, col2 = st.columns(2)
@@ -41,19 +43,19 @@ def show_about():
     st.markdown("---")
 
     st.markdown("""
-    ### 🤖 Models
+    ### Models
     | Model | Accuracy | Best For |
     |-------|----------|----------|
     | Logistic Regression | 71.25% | Baseline / Interpretability |
     | Random Forest | 100.00% | High accuracy |
     | XGBoost | 99.58% | **Recommended** for production |
 
-    ### 🏷️ Classes
-    - ✅ **Healthy (0)** — Soil moisture 30–70%, normal conditions
-    - 💧 **Needs Water (1)** — Low moisture, high temp, low humidity
-    - ⚠️ **Overwatered (2)** — Too much moisture, excess nitrogen
+    ### Classes
+    - **Healthy (0)** — Soil moisture 30–70%, normal conditions
+    - **Needs Water (1)** — Low moisture, high temp, low humidity
+    - **Overwatered (2)** — Too much moisture, excess nitrogen
 
-    ### 🛠️ Tech Stack
+    ### Tech Stack
     - Python 3.10+, scikit-learn, XGBoost
     - Streamlit, Plotly, Pandas
     - Pickle model serialization

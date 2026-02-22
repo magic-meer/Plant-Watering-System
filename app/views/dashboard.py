@@ -1,12 +1,10 @@
-"""
-app/views/dashboard.py  ─  Dashboard Page
-Shows system overview, model stats, quick metrics
-"""
+"""Dashboard page view showing system overview and model statistics."""
 
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-import sys, os
+import sys
+import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT)
@@ -16,43 +14,44 @@ from src.utils.config import CLASS_COLORS, CLASS_ICONS, CLASS_NAMES
 
 
 def show_dashboard():
-    st.header("🏠 Dashboard")
+    """Display the dashboard with model performance metrics and class information."""
+    st.header("Dashboard")
 
     metrics = load_comparison_metrics()
     has_metrics = bool(metrics)
 
-    # ── Top KPI row ──────────────────────────────────────────────────────
+    # Top KPI row
     col1, col2, col3, col4 = st.columns(4)
 
-    best_acc  = max((v["accuracy"] for v in metrics.values()), default=0.9958)
-    best_auc  = max((v["roc_auc_macro"] for v in metrics.values()), default=0.9999)
-    n_models  = len(metrics) if metrics else 3
+    best_acc = max((v["accuracy"] for v in metrics.values()), default=0.9958)
+    best_auc = max((v["roc_auc_macro"] for v in metrics.values()), default=0.9999)
+    n_models = len(metrics) if metrics else 3
     n_classes = 3
 
     with col1:
-        st.metric("🤖 Models Loaded", n_models, delta="Ready")
+        st.metric("Models Loaded", n_models, delta="Ready")
     with col2:
-        st.metric("🎯 Best Accuracy", f"{best_acc:.2%}")
+        st.metric("Best Accuracy", f"{best_acc:.2%}")
     with col3:
-        st.metric("📈 Best AUC", f"{best_auc:.4f}")
+        st.metric("Best AUC", f"{best_auc:.4f}")
     with col4:
-        st.metric("🏷️ Classes", n_classes, delta="Healthy / Needs Water / Overwatered")
+        st.metric("Classes", n_classes, delta="Healthy / Needs Water / Overwatered")
 
     st.markdown("---")
 
-    # ── Model leaderboard ────────────────────────────────────────────────
-    st.subheader("🏆 Model Leaderboard")
+    # Model leaderboard
+    st.subheader("Model Leaderboard")
 
     if has_metrics:
         rows = sorted([
             {
-                "Rank":           "",
-                "Model":          name,
-                "Accuracy":       f"{m['accuracy']:.2%}",
-                "F1-Score":       f"{m['f1_score']:.4f}",
-                "AUC (Macro)":    f"{m['roc_auc_macro']:.4f}",
-                "Speed (ms)":     f"{m['inference_time_s']*1000:.1f}",
-                "_acc":           m["accuracy"],
+                "Rank": "",
+                "Model": name,
+                "Accuracy": f"{m['accuracy']:.2%}",
+                "F1-Score": f"{m['f1_score']:.4f}",
+                "AUC (Macro)": f"{m['roc_auc_macro']:.4f}",
+                "Speed (ms)": f"{m['inference_time_s']*1000:.1f}",
+                "_acc": m["accuracy"],
             }
             for name, m in metrics.items()
         ], key=lambda r: r["_acc"], reverse=True)
@@ -68,10 +67,14 @@ def show_dashboard():
 
     st.markdown("---")
 
-    # ── Accuracy mini-chart ──────────────────────────────────────────────
+    # Accuracy mini-chart
     if has_metrics:
-        st.subheader("📊 Accuracy at a Glance")
-        colors = {"Logistic Regression": "#e74c3c", "Random Forest": "#2ecc71", "XGBoost": "#3498db"}
+        st.subheader("Accuracy at a Glance")
+        colors = {
+            "Logistic Regression": "#e74c3c",
+            "Random Forest": "#2ecc71",
+            "XGBoost": "#3498db"
+        }
 
         fig = go.Figure()
         for name, m in metrics.items():
@@ -90,14 +93,14 @@ def show_dashboard():
 
     st.markdown("---")
 
-    # ── Class info ───────────────────────────────────────────────────────
-    st.subheader("🌿 Plant Health Classes")
+    # Class info
+    st.subheader("Plant Health Classes")
     c1, c2, c3 = st.columns(3)
 
     class_info = {
-        0: ("Healthy",      "Soil moisture 30–70%\nNormal temp & humidity\nNo action needed",   "#2ecc71"),
-        1: ("Needs Water",  "Soil moisture < 30%\nHigh temp or low humidity\nTurn pump ON",     "#e67e22"),
-        2: ("Overwatered",  "Soil moisture > 70%\nExcess nitrogen\nStop watering immediately", "#e74c3c"),
+        0: ("Healthy", "Soil moisture 30–70%\nNormal temp & humidity\nNo action needed", "#2ecc71"),
+        1: ("Needs Water", "Soil moisture < 30%\nHigh temp or low humidity\nTurn pump ON", "#e67e22"),
+        2: ("Overwatered", "Soil moisture > 70%\nExcess nitrogen\nStop watering immediately", "#e74c3c"),
     }
 
     for col, (cls_id, (label, desc, color)) in zip([c1, c2, c3], class_info.items()):
