@@ -152,7 +152,7 @@ def predict_single(model, scaler, feature_df: pd.DataFrame) -> dict:
     }
 
 
-def predict_all_models(sensor_input: dict) -> dict:
+def predict_all_models(sensor_input: dict, rule_thresholds: dict | None = None) -> dict:
     """
     Run all available models and rule-based decision on sensor input.
 
@@ -174,7 +174,7 @@ def predict_all_models(sensor_input: dict) -> dict:
             ml_results[name] = {"error": str(e)}
 
     # Rule-based decision
-    rule_result = rule_based_decision(sensor_input)
+    rule_result = rule_based_decision(sensor_input, thresholds=rule_thresholds)
     water_action = get_watering_action(rule_result)
 
     # Find best model by confidence

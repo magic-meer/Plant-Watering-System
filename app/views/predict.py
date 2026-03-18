@@ -11,6 +11,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, ROOT)
 
 from src.backend.predict import predict_all_models
+from src.utils.config import RULE_THRESHOLDS
 
 
 def show_predict():
@@ -67,7 +68,8 @@ def show_predict():
         }
 
         with st.spinner("Running ML models + Rule Engine..."):
-            result = predict_all_models(sensor_input)
+            active_thresholds = st.session_state.get("rule_thresholds", RULE_THRESHOLDS)
+            result = predict_all_models(sensor_input, rule_thresholds=active_thresholds)
 
         st.markdown("---")
 
