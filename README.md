@@ -81,7 +81,6 @@ python src/models/compare_models.py
 - Initial 100% RF holdout score is unusually high for real-world sensor data.
 - We tested group-aware splitting by `Plant_ID` to reduce identity leakage risk; accuracy remained ~99.58%.
 - Conclusion: the data appears highly separable and likely **synthetic or simulation-like** (not noisy real field data), which can legitimately produce near-perfect metrics.
-- Recommendation: add a truly unseen, time-based, real-world holdout set before production deployment.
 
 ## 7) Metrics Snapshot
 
@@ -109,7 +108,7 @@ python src/models/compare_models.py
 
 ## 9) Rule Engine Threshold Configuration
 
-Thresholds are parameterized in `src/utils/config.py` and can now be tuned in **Settings** page sliders (without code edits).
+Thresholds are parameterized in `src/utils/config.py` and can now be tuned in **Settings** page sliders.
 
 Default keys:
 - `soil_moisture_low`
@@ -118,37 +117,17 @@ Default keys:
 - `humidity_low`
 - `days_since_water`
 
-## 10) Team
+## 10. Team Contributions
 
-### Roles (responsibility-wise)
-- **Mehr Ali** — Project coordination, model comparison strategy, backend integration.
-- **Maryam Fatima** — Frontend views, visualization integration, documentation polish.
-- **Rameesha** — XGBoost modeling and backend support.
-- **Ayesha** — Data cleaning, feature engineering, backend/frontend flow integration.
-- **Hammad Ali** — Feature scaling pipeline and logistic regression baseline.
-
-### Contributions (work output labels)
-- **Mehr Ali**: model benchmarking notebooks/scripts, reporting and integration.
-- **Maryam Fatima**: Streamlit pages, chart presentation, UX text/content.
-- **Rameesha**: gradient boosting experimentation and tuning artifacts.
-- **Ayesha**: preprocessing and feature preparation artifacts.
-- **Hammad Ali**: baseline model training artifacts and preprocessing support.
-
-### Member Accounts (single consistent entry per person)
-- Mehr Ali — GitHub: <https://github.com/magic-meer>
-- Maryam Fatima — GitHub: <https://github.com/maryam-ca>
-- Rameesha — GitHub: <https://github.com/Rameesha8>
-- Ayesha — GitHub: <https://github.com/Ayesha0000000>
-- Hammad Ali — GitHub: <https://github.com/hammadali155>
+| Member | Contribution |
+|--------|-------------|
+| [Meher Ali](https://github.com/magic-meer) | Model benchmarking, system integration |
+| [Maryam Fatima](https://github.com/maryam-ca) | Frontend development, visualizations |
+| [Rameesha](https://github.com/Rameesha8) | XGBoost modeling, backend support |
+| [Ayesha](https://github.com/Ayesha0000000) | Data preprocessing, feature engineering |
+| [Hammad Ali](https://github.com/hammadali155) | Baseline models, preprocessing support |
 
 ## 11) Data Source Credits
-
-> If your training data is private/synthetic, explicitly mention it below.
-
-- **Primary dataset file used in this repo:** `data/raw/original_dataset.csv`.
-- **Current status:** appears synthetic/simulated based on separability and validation behavior.
-
-### Data Source Credit Block
 - Dataset title: **Plant Watering Sensor Dataset (Project Internal Build)**
 - Author/owner: **Plant Watering System Fellowship Team**
 - URL (repo file): <./data/raw/original_dataset.csv>
@@ -162,7 +141,6 @@ This project was developed as part of an **AI/ML Fellowship Program**, with coll
 
 For issues, suggestions, and collaboration:
 - Open a GitHub issue in this repository.
-- Team GitHub contacts are listed above in **Member Accounts**.
 
 ## 14) License
 
