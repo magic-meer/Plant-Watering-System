@@ -59,10 +59,23 @@ FEATURE_COLS = [
 ]
 
 # Rule Engine Thresholds
-RULE_THRESHOLDS = {
+DEFAULT_RULE_THRESHOLDS = {
     "soil_moisture_low": 30,    # below -> Needs Water
     "soil_moisture_high": 70,   # above -> Overwatered
     "temperature_high": 38,     # above -> stress flag
     "humidity_low": 35,         # below -> dry air
     "days_since_water": 3,      # above -> likely needs water
 }
+
+# Backward-compatible alias used by the existing application.
+RULE_THRESHOLDS = DEFAULT_RULE_THRESHOLDS.copy()
+
+
+def merge_rule_thresholds(overrides=None):
+    """Merge user-provided threshold overrides with defaults."""
+    merged = DEFAULT_RULE_THRESHOLDS.copy()
+    if overrides:
+        for key, value in overrides.items():
+            if key in merged and value is not None:
+                merged[key] = value
+    return merged

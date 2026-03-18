@@ -1,238 +1,169 @@
 # Plant Watering System
 
-An AI-powered plant health monitoring and automated watering decision system developed as part of an AI/ML Fellowship program. This project uses machine learning models and rule-based decision logic to classify plant health status and recommend watering actions.
+AI-powered plant health monitoring and watering decision support built during an AI/ML fellowship.
 
-## Overview
+## 1) Overview
 
-The Plant Watering Intelligence System classifies plant health into three categories:
-- **Healthy** - Optimal soil moisture and environmental conditions
-- **Needs Water** - Low soil moisture requiring immediate irrigation
-- **Overwatered** - Excess moisture requiring drainage intervention
+The project predicts plant health from sensor and engineered features, then combines ML predictions with a rule-based engine to recommend watering actions.
 
-## Features
+**Classes used by the app UI:**
+- Healthy
+- Needs Water
+- Overwatered
 
-- **Multi-Model ML Pipeline**: Logistic Regression, Random Forest, and XGBoost classifiers
-- **Rule-Based Decision Engine**: Weighted rule system for interpretable decisions
-- **Interactive Dashboard**: Streamlit-based web interface for real-time predictions
-- **Model Comparison**: Comprehensive performance analysis with visualizations
-- **Sensor Integration**: Support for soil moisture, temperature, humidity, and nutrient sensors
+## 2) Project Structure
 
-## Tech Stack
-
-- **Frontend**: Streamlit, Plotly
-- **Backend**: Python 3.10+
-- **ML Libraries**: scikit-learn, XGBoost, pandas, numpy
-- **Visualization**: Matplotlib, Seaborn, Plotly
-
-## Project Structure
-
-```
+```text
 Plant-Watering-System/
-├── app/                        # Streamlit application
-│   ├── app.py                  # Main entry point
-│   └── views/                  # Page views
-│       ├── about.py
-│       ├── dashboard.py
-│       ├── dataset_visualization.py
-│       ├── model_comparison.py
-│       ├── predict.py
-│       └── settings.py
-├── src/                        # Source code
-│   ├── backend/
-│   │   └── predict.py          # ML prediction backend
-│   ├── data/
-│   │   ├── load_data.py        # Data loading utilities
-│   │   ├── preprocess.py       # Data preprocessing
-│   │   └── split.py            # Train-test split
-│   ├── inference/
-│   │   └── decision_logic.py   # Rule-based decision engine
-│   ├── models/
-│   │   ├── compare_models.py   # Model comparison script
-│   │   ├── train_logistic.py   # Logistic Regression training
-│   │   ├── train_rf.py         # Random Forest training
-│   │   └── train_xgb.py        # XGBoost training
-│   └── utils/
-│       ├── config.py           # Central configuration
-│       └── helpers.py          # Helper utilities
-├── models/                     # Trained model files
-├── data/                       # Dataset directory
-│   ├── raw/                    # Raw data
-│   └── processed/              # Processed data
-├── reports/                    # Generated reports
-│   └── figures/                # Visualization outputs
-├── plots/                      # Static plots
-├── notebooks/                  # Jupyter notebooks
-├── requirements.txt            # Python dependencies
-└── README.md                   # This file
+├── app/                       # Streamlit app
+├── src/                       # Data, modeling, inference, backend modules
+├── data/
+│   ├── raw/                   # Original dataset
+│   ├── processed/             # Train/test splits and cleaned files
+│   └── README.md              # Data dictionary + file naming guide
+├── reports/                   # Model metrics and figures
+├── demo/
+│   └── screenshots/           # Demo screenshots used in README
+├── docs/
+│   └── pipeline_diagram.svg   # Pipeline diagram (Data → Deploy)
+├── assets/                    # Placeholder for user-added media
+├── requirements.txt
+├── CONTRIBUTING.md
+├── LICENSE
+└── README.md
 ```
 
-## Installation
+## 3) Installation
 
-### Prerequisites
-
-- Python 3.10 or higher
-- pip package manager
-
-### Setup
-
-1. Clone the repository:
 ```bash
 git clone <repository-url>
 cd Plant-Watering-System
-```
-
-2. Create and activate a virtual environment:
-```bash
 python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Usage
+## 4) Run the App
 
-### Running the Application
-
-Start the Streamlit dashboard:
 ```bash
 streamlit run app/app.py
 ```
 
-The application will open in your browser at `http://localhost:8501`
+Open: `http://localhost:8501`
 
-### Training Models
+## 5) Model Training Workflow
 
-1. **Preprocess Data**:
 ```bash
-cd src/data
-python preprocess.py
+python src/data/preprocess.py
+python src/models/train_logistic.py
+python src/models/train_rf.py
+python src/models/train_xgb.py
+python src/models/compare_models.py
 ```
 
-2. **Train Individual Models**:
-```bash
-cd src/models
-python train_logistic.py
-python train_rf.py
-python train_xgb.py
-```
+## 6) Model Validation (Leakage Check + Evaluation)
 
-3. **Compare Models**:
-```bash
-python compare_models.py
-```
+### Train/Test split method
+- `train_test_split(..., test_size=0.2, random_state=42, stratify=y)` is used in preprocessing.
+- This keeps class balance in train and test sets.
 
-This generates:
-- Performance metrics (JSON, CSV)
-- Visualization charts (PNG)
-- Comprehensive markdown report
+### Cross-validation
+- Additional validation done with **Stratified 5-Fold CV** for Random Forest.
+- Observed scores from local check:
+  - Fold accuracies: `[1.0000, 0.9958, 1.0000, 1.0000, 0.9917]`
+  - Mean CV accuracy: **0.9975**
 
-### Model Performance
+### Confusion matrices
+- Combined confusion matrix figure:
+  - `reports/figures/model_comparison/confusion_matrices.png`
+
+### Why near-perfect RF performance is suspicious (and what we found)
+- Initial 100% RF holdout score is unusually high for real-world sensor data.
+- We tested group-aware splitting by `Plant_ID` to reduce identity leakage risk; accuracy remained ~99.58%.
+- Conclusion: the data appears highly separable and likely **synthetic or simulation-like** (not noisy real field data), which can legitimately produce near-perfect metrics.
+- Recommendation: add a truly unseen, time-based, real-world holdout set before production deployment.
+
+## 7) Metrics Snapshot
 
 | Model | Accuracy | Precision | Recall | F1-Score |
-|-------|----------|-----------|--------|----------|
+|---|---:|---:|---:|---:|
 | Logistic Regression | 71.25% | 71.49% | 71.25% | 71.36% |
 | Random Forest | 100.00% | 100.00% | 100.00% | 100.00% |
 | XGBoost | 99.58% | 99.59% | 99.58% | 99.58% |
 
-**Recommended Model**: XGBoost (best balance of accuracy and generalization)
+> Recommended deployment model: **XGBoost** (strong performance with better practical robustness tradeoff than a perfect-score RF on synthetic-like data).
 
-## Configuration
+## 8) Demo Visuals
 
-Edit `src/utils/config.py` to modify:
-- File paths and directories
-- Model hyperparameters
-- Rule engine thresholds
-- Class labels and colors
+### Pipeline Diagram
+![Pipeline diagram](docs/pipeline_diagram.svg)
 
-### Rule Engine Thresholds
+### Screenshots (placeholders)
+- Add your screenshots under `demo/screenshots/`.
+- Suggested files: `model_accuracy.png`, `model_comparison_confusion_matrices.png`.
+- Placeholder notes: `demo/screenshots/README.md`.
 
-```python
-RULE_THRESHOLDS = {
-    "soil_moisture_low": 30,    # Below -> Needs Water
-    "soil_moisture_high": 70,   # Above -> Overwatered
-    "temperature_high": 38,     # Above -> Stress flag
-    "humidity_low": 35,         # Below -> Dry air
-    "days_since_water": 3,      # Above -> Likely needs water
-}
-```
+### Short Demo Video/GIF (placeholder)
+- Add your own media file such as `assets/demo.mp4` or `assets/demo.gif`.
+- Placeholder notes: `assets/README.md`.
 
-## Dataset
+## 9) Rule Engine Threshold Configuration
 
-The dataset contains plant health sensor readings with the following features:
+Thresholds are parameterized in `src/utils/config.py` and can now be tuned in **Settings** page sliders (without code edits).
 
-### Environmental Sensors
-- Soil Moisture (%)
-- Ambient Temperature (°C)
-- Soil Temperature (°C)
-- Humidity (%)
-- Light Intensity (lux)
-- Soil pH
-- Nitrogen, Phosphorus, Potassium Levels
-- Chlorophyll Content
-- Electrochemical Signal
+Default keys:
+- `soil_moisture_low`
+- `soil_moisture_high`
+- `temperature_high`
+- `humidity_low`
+- `days_since_water`
 
-### Engineered Features
-- days_since_last_watering
-- watering_sma_3 (3-period moving average)
-- Temporal features (Year, Month, Day, Hour)
+## 10) Team
 
-## API Reference
+### Roles (responsibility-wise)
+- **Mehr Ali** — Project coordination, model comparison strategy, backend integration.
+- **Maryam Fatima** — Frontend views, visualization integration, documentation polish.
+- **Rameesha** — XGBoost modeling and backend support.
+- **Ayesha** — Data cleaning, feature engineering, backend/frontend flow integration.
+- **Hammad Ali** — Feature scaling pipeline and logistic regression baseline.
 
-### Backend Prediction
+### Contributions (work output labels)
+- **Mehr Ali**: model benchmarking notebooks/scripts, reporting and integration.
+- **Maryam Fatima**: Streamlit pages, chart presentation, UX text/content.
+- **Rameesha**: gradient boosting experimentation and tuning artifacts.
+- **Ayesha**: preprocessing and feature preparation artifacts.
+- **Hammad Ali**: baseline model training artifacts and preprocessing support.
 
-```python
-from src.backend.predict import predict_all_models
+### Member Accounts (single consistent entry per person)
+- Mehr Ali — GitHub: <https://github.com/magic-meer>
+- Maryam Fatima — GitHub: <https://github.com/maryam-ca>
+- Rameesha — GitHub: <https://github.com/Rameesha8>
+- Ayesha — GitHub: <https://github.com/Ayesha0000000>
+- Hammad Ali — GitHub: <https://github.com/hammadali155>
 
-sensor_input = {
-    "Soil_Moisture": 25,
-    "Ambient_Temperature": 28,
-    "Humidity": 60,
-    # ... other features
-}
+## 11) Data Source Credits
 
-result = predict_all_models(sensor_input)
-```
+> If your training data is private/synthetic, explicitly mention it below.
 
-### Rule-Based Decision
+- **Primary dataset file used in this repo:** `data/raw/original_dataset.csv`.
+- **Current status:** appears synthetic/simulated based on separability and validation behavior.
 
-```python
-from src.inference.decision_logic import rule_based_decision, get_watering_action
+### Data Source Credit Block
+- Dataset title: **Plant Watering Sensor Dataset (Project Internal Build)**
+- Author/owner: **Plant Watering System Fellowship Team**
+- URL (repo file): <./data/raw/original_dataset.csv>
+- Data processing notes: <./data/README.md>
 
-decision = rule_based_decision(sensor_input)
-action = get_watering_action(decision)
-```
+## 12) Acknowledgement
 
-> **Note**: Please update the contributor names above with the actual team member names from your GitHub repository.
+This project was developed as part of an **AI/ML Fellowship Program**, with collaborative support from mentors, peers, and the open-source ML community.
 
-## License
+## 13) Contact
 
-This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
+For issues, suggestions, and collaboration:
+- Open a GitHub issue in this repository.
+- Team GitHub contacts are listed above in **Member Accounts**.
 
-## Acknowledgments
+## 14) License
 
-- AI/ML Fellowship Program
-- Streamlit community
-- scikit-learn and XGBoost developers
-
-## Contact
-
-For questions or contributions, please open an issue on the GitHub repository.
-
----
-This project was developed as part of an AI/ML Fellowship program by a talented team of 5 members:
-
-*Plant Watering Intelligence System © 2026*
-## Contributors
-
-This project was developed as part of an AI/ML Fellowship program by a talented team of 5 members:
-
-| Name | GitHub Username | Profile | Contributions | Role |
-|------|-----------------|---------|--------------|------|
-| Mehr Ali | magic-meer | [magic-meer](https://github.com/magic-meer) | 8 | Project Coordination, Model Comparison & Backend Integration |
-| Maryam Fatima | maryam-ca | [maryam-ca](https://github.com/maryam-ca) | 8 |Frontend, Data Visualization Development & Documentation |
-| Rameesha | Rameesha8 | [Rameesha8](https://github.com/Rameesha8) | 5 | XGBoost Model & Backend Development |
-| Ayesha | Ayesha0000000 | [Ayesha0000000](https://github.com/Ayesha0000000) | 4 | Data Cleaning, Feature Engineering & Backend–Frontend Connection |
-| Hammad Ali | hammadali155 | [hammadali155](https://github.com/hammadali155) | 3 | Feature Scaling & Logistic Regression Implementationn |
+Licensed under Apache-2.0. See [LICENSE](LICENSE).

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="220" viewBox="0 0 1200 220" role="img" aria-label="Plant watering ML pipeline">
+  <style>
+    .box { fill:#e8f5e9; stroke:#2e7d32; stroke-width:2; rx:14; ry:14; }
+    .txt { font: 600 22px Arial, sans-serif; fill:#1b5e20; }
+    .arrow { stroke:#1b5e20; stroke-width:3; marker-end:url(#arrowhead); }
+    .title { font: 700 24px Arial, sans-serif; fill:#111; }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1b5e20" />
+    </marker>
+  </defs>
+  <text x="40" y="35" class="title">Plant Watering ML Pipeline</text>
+
+  <rect class="box" x="30" y="80" width="150" height="80"/>
+  <text class="txt" x="105" y="127" text-anchor="middle">Data</text>
+
+  <line class="arrow" x1="180" y1="120" x2="225" y2="120"/>
+
+  <rect class="box" x="225" y="80" width="180" height="80"/>
+  <text class="txt" x="315" y="127" text-anchor="middle">Preprocess</text>
+
+  <line class="arrow" x1="405" y1="120" x2="450" y2="120"/>
+
+  <rect class="box" x="450" y="80" width="160" height="80"/>
+  <text class="txt" x="530" y="127" text-anchor="middle">Features</text>
+
+  <line class="arrow" x1="610" y1="120" x2="655" y2="120"/>
+
+  <rect class="box" x="655" y="80" width="150" height="80"/>
+  <text class="txt" x="730" y="127" text-anchor="middle">Model</text>
+
+  <line class="arrow" x1="805" y1="120" x2="850" y2="120"/>
+
+  <rect class="box" x="850" y="80" width="170" height="80"/>
+  <text class="txt" x="935" y="127" text-anchor="middle">Evaluate</text>
+
+  <line class="arrow" x1="1020" y1="120" x2="1065" y2="120"/>
+
+  <rect class="box" x="1065" y="80" width="125" height="80"/>
+  <text class="txt" x="1127" y="127" text-anchor="middle">Deploy</text>
+</svg>
