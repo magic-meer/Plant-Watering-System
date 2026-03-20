@@ -97,14 +97,13 @@ python src/models/compare_models.py
 ### Pipeline Diagram
 ![Pipeline diagram](docs/pipeline_diagram.svg)
 
-### Screenshots (placeholders)
-- Add your screenshots under `demo/screenshots/`.
-- Suggested files: `model_accuracy.png`, `model_comparison_confusion_matrices.png`.
-- Placeholder notes: `demo/screenshots/README.md`.
+### Screenshots
+![Model Accuracy](demo/screenshots/model_accuracy.png)
+![Model Comparison Confusion Matrices](demo/screenshots/model_comparison_confusion_matrices.png)
 
-### Short Demo Video/GIF (placeholder)
-- Add your own media file such as `assets/demo.mp4` or `assets/demo.gif`.
-- Placeholder notes: `assets/README.md`.
+### Short Demo Video
+<video src="assets/demo.mp4" controls="controls" style="max-width: 100%;">
+</video>
 
 ## 9) Rule Engine Threshold Configuration
 
