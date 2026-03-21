@@ -102,7 +102,7 @@ python src/models/compare_models.py
 ![Model Comparison Confusion Matrices](demo/screenshots/model_comparison_confusion_matrices.png)
 
 ### Short Demo Video
-![Plant Watering System Demo](assets/demo.mp4)
+https://github.com/user-attachments/assets/7292eaf2-a3ca-4b15-97fa-4857d30edcd8
 
 ## 9) Rule Engine Threshold Configuration
 
